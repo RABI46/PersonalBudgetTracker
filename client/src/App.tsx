@@ -7,6 +7,7 @@ import SimpleCigaretteTracker from "@/components/dashboard/simple-cigarette-trac
 import StatsOverview from "@/components/dashboard/stats-overview";
 import SavingsCalculator from "@/components/dashboard/savings-calculator";
 import HealthTimeline from "@/components/dashboard/health-timeline";
+import UserProfileForm from "@/components/profile/user-profile-form";
 
 // Page d'accueil améliorée
 function HomePage() {
@@ -25,6 +26,9 @@ function HomePage() {
             </Link>
             <Link href="/tips" className="px-6 py-3 bg-blue-700 text-white font-medium rounded-lg hover:bg-blue-600 transition-colors">
               Conseils pour arrêter
+            </Link>
+            <Link href="/profile" className="px-6 py-3 bg-purple-700 text-white font-medium rounded-lg hover:bg-purple-600 transition-colors">
+              Mon profil
             </Link>
           </div>
         </div>
@@ -115,6 +119,9 @@ function DashboardPage() {
           </div>
           
           <div className="flex gap-3">
+            <Link href="/profile" className="px-4 py-2 bg-purple-500 hover:bg-purple-600 text-white rounded-lg">
+              Profil
+            </Link>
             <Link href="/tips" className="px-4 py-2 bg-green-500 hover:bg-green-600 text-white rounded-lg">
               Conseils
             </Link>
@@ -212,6 +219,9 @@ function TipsPage() {
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-2xl font-bold">Conseils pour arrêter de fumer</h1>
           <div className="flex space-x-3">
+            <Link href="/profile" className="px-4 py-2 bg-purple-500 hover:bg-purple-600 text-white rounded-lg">
+              Profil
+            </Link>
             <Link href="/dashboard" className="px-4 py-2 bg-green-500 hover:bg-green-600 text-white rounded-lg">
               Dashboard
             </Link>
@@ -234,6 +244,49 @@ function TipsPage() {
   );
 }
 
+// Page de profil utilisateur
+function ProfilePage() {
+  // Nous utilisons un ID d'utilisateur fixe pour le moment (utilisateur par défaut)
+  const userId = 1;
+  
+  return (
+    <div className="min-h-screen bg-gray-100 p-6">
+      <div className="max-w-4xl mx-auto">
+        <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4 mb-6">
+          <h1 className="text-2xl font-bold">Mon profil</h1>
+          
+          <div className="flex gap-3">
+            <Link href="/dashboard" className="px-4 py-2 bg-green-500 hover:bg-green-600 text-white rounded-lg">
+              Dashboard
+            </Link>
+            <Link href="/tips" className="px-4 py-2 bg-amber-500 hover:bg-amber-600 text-white rounded-lg">
+              Conseils
+            </Link>
+            <Link href="/" className="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg">
+              Accueil
+            </Link>
+          </div>
+        </div>
+        
+        <UserProfileForm userId={userId} />
+        
+        <div className="mt-6 bg-white rounded-xl shadow-sm p-6">
+          <h2 className="text-xl font-bold text-gray-800 mb-4">
+            Informations sur l'application
+          </h2>
+          <p className="text-gray-600 mb-3">
+            StopClope est une application conçue pour vous aider à arrêter de fumer en suivant votre progression, 
+            calculant vos économies et vous montrant les bénéfices pour votre santé.
+          </p>
+          <p className="text-gray-600">
+            Version 1.0 - Développée avec ❤️
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // Routeur simplifié
 function AppRouter() {
   return (
@@ -241,6 +294,7 @@ function AppRouter() {
       <Route path="/" component={HomePage} />
       <Route path="/dashboard" component={DashboardPage} />
       <Route path="/tips" component={TipsPage} />
+      <Route path="/profile" component={ProfilePage} />
       <Route component={NotFoundPage} />
     </Switch>
   );
