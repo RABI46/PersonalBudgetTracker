@@ -1,6 +1,7 @@
-import { pgTable, text, serial, integer, boolean, timestamp, json } from "drizzle-orm/pg-core";
+import { pgTable, text, serial, integer, boolean, timestamp } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
+import { relations } from "drizzle-orm";
 
 export const users = pgTable("users", {
   id: serial("id").primaryKey(),
@@ -35,6 +36,26 @@ export const achievements = pgTable("achievements", {
   achievementType: text("achievement_type").notNull(), // 'firstDay', 'firstWeek', etc.
   unlockedAt: timestamp("unlocked_at").defaultNow().notNull(),
 });
+
+// Relations
+export const usersRelations = relations(users, ({ many }) => ({
+  cravings: many(cravings),
+  achievements: many(achievements),
+}));
+
+export const cravingsRelations = relations(cravings, ({ one }) => ({
+  user: one(users, {
+    fields: [cravings.userId],
+    references: [users.id]
+  }),
+}));
+
+export const achievementsRelations = relations(achievements, ({ one }) => ({
+  user: one(users, {
+    fields: [achievements.userId],
+    references: [users.id]
+  }),
+}));
 
 // Schema for user insertion and validation
 export const insertUserSchema = createInsertSchema(users)

@@ -5,6 +5,8 @@ import {
   achievements, type Achievement, type InsertAchievement,
   type UserStats, type UserWithStats
 } from "@shared/schema";
+import { db } from "./db";
+import { eq, desc, and } from "drizzle-orm";
 
 export interface IStorage {
   // User methods
@@ -258,4 +260,218 @@ export class MemStorage implements IStorage {
   }
 }
 
-export const storage = new MemStorage();
+export class DatabaseStorage implements IStorage {
+  // User methods
+  async getUser(id: number): Promise<User | undefined> {
+    const [user] = await db
+      .select()
+      .from(users)
+      .where(eq(users.id, id));
+    return user;
+  }
+
+  async getUserByUsername(username: string): Promise<User | undefined> {
+    const [user] = await db
+      .select()
+      .from(users)
+      .where(eq(users.username, username));
+    return user;
+  }
+
+  async createUser(insertUser: InsertUser): Promise<User> {
+    const [user] = await db
+      .insert(users)
+      .values(insertUser)
+      .returning();
+    return user;
+  }
+
+  async updateUser(id: number, data: Partial<User>): Promise<User | undefined> {
+    const [updatedUser] = await db
+      .update(users)
+      .set(data)
+      .where(eq(users.id, id))
+      .returning();
+    return updatedUser;
+  }
+
+  // Craving methods
+  async getCravingsByUserId(userId: number): Promise<Craving[]> {
+    return await db
+      .select()
+      .from(cravings)
+      .where(eq(cravings.userId, userId))
+      .orderBy(desc(cravings.createdAt));
+  }
+
+  async createCraving(insertCraving: InsertCraving): Promise<Craving> {
+    const [craving] = await db
+      .insert(cravings)
+      .values(insertCraving)
+      .returning();
+    return craving;
+  }
+
+  async getLastCravingByUserId(userId: number): Promise<Craving | undefined> {
+    const [craving] = await db
+      .select()
+      .from(cravings)
+      .where(eq(cravings.userId, userId))
+      .orderBy(desc(cravings.createdAt))
+      .limit(1);
+    return craving;
+  }
+
+  // Health tip methods
+  async getAllHealthTips(): Promise<HealthTip[]> {
+    return await db
+      .select()
+      .from(healthTips);
+  }
+
+  async getHealthTip(id: number): Promise<HealthTip | undefined> {
+    const [tip] = await db
+      .select()
+      .from(healthTips)
+      .where(eq(healthTips.id, id));
+    return tip;
+  }
+
+  async createHealthTip(insertTip: InsertHealthTip): Promise<HealthTip> {
+    const [tip] = await db
+      .insert(healthTips)
+      .values(insertTip)
+      .returning();
+    return tip;
+  }
+
+  // Achievement methods
+  async getAchievementsByUserId(userId: number): Promise<Achievement[]> {
+    return await db
+      .select()
+      .from(achievements)
+      .where(eq(achievements.userId, userId))
+      .orderBy(desc(achievements.unlockedAt));
+  }
+
+  async createAchievement(insertAchievement: InsertAchievement): Promise<Achievement> {
+    const [achievement] = await db
+      .insert(achievements)
+      .values(insertAchievement)
+      .returning();
+    return achievement;
+  }
+
+  // Statistics methods
+  async getUserStats(userId: number): Promise<UserStats | undefined> {
+    const user = await this.getUser(userId);
+    if (!user) return undefined;
+    
+    const now = new Date();
+    const quitDate = new Date(user.quitDate);
+    const diffTime = Math.abs(now.getTime() - quitDate.getTime());
+    const daysSinceSmoking = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    
+    const cigarettesPerDay = user.cigarettesPerDay;
+    const cigarettesAvoided = cigarettesPerDay * daysSinceSmoking;
+    
+    const cigarettePrice = (user.cigarettePackPrice / user.cigarettesPerPack);
+    const moneySaved = Math.round(cigarettesAvoided * cigarettePrice);
+    
+    // Health recovery is a simplified calculation
+    // Max health recovery is achieved after 15 years (5475 days)
+    const healthRecoveryPercentage = Math.min(Math.round((daysSinceSmoking / 5475) * 100), 100);
+    
+    const lastCraving = await this.getLastCravingByUserId(userId);
+    
+    // Calculate longest streak (in minutes) where user resisted cravings
+    const userCravings = await this.getCravingsByUserId(userId);
+    let longestStreak = 0;
+    
+    if (userCravings.length > 0) {
+      // Sort by creation date
+      const sortedCravings = userCravings.sort((a, b) => 
+        new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+      );
+      
+      // Find longest streak between resisted cravings
+      let currentStreak = 0;
+      for (let i = 1; i < sortedCravings.length; i++) {
+        if (sortedCravings[i-1].resisted && sortedCravings[i].resisted) {
+          const diff = new Date(sortedCravings[i].createdAt).getTime() - 
+                        new Date(sortedCravings[i-1].createdAt).getTime();
+          const diffMinutes = Math.floor(diff / (1000 * 60));
+          
+          currentStreak = diffMinutes;
+          if (currentStreak > longestStreak) {
+            longestStreak = currentStreak;
+          }
+        } else {
+          currentStreak = 0;
+        }
+      }
+    }
+    
+    return {
+      daysSinceSmoking,
+      cigarettesAvoided,
+      moneySaved,
+      healthRecoveryPercentage,
+      lastCraving: lastCraving || null,
+      longestStreak
+    };
+  }
+
+  async getUserWithStats(userId: number): Promise<UserWithStats | undefined> {
+    const user = await this.getUser(userId);
+    if (!user) return undefined;
+    
+    const stats = await this.getUserStats(userId);
+    if (!stats) return undefined;
+    
+    return {
+      ...user,
+      stats
+    };
+  }
+
+  // Initialization method to add default health tips if none exist
+  async initializeHealthTips() {
+    const existingTips = await this.getAllHealthTips();
+    
+    if (existingTips.length === 0) {
+      const tips = [
+        {
+          title: "Respiration 4-7-8",
+          content: "Lorsque vous avez une envie de fumer, essayez la technique de respiration 4-7-8 : inspirez pendant 4 secondes, retenez pendant 7 secondes, expirez pendant 8 secondes. Répétez 3 fois."
+        },
+        {
+          title: "Buvez beaucoup d'eau",
+          content: "Rester bien hydraté peut aider à réduire les envies et à éliminer plus rapidement la nicotine de votre corps."
+        },
+        {
+          title: "Activité physique",
+          content: "Même une courte promenade de 5 minutes peut réduire significativement l'intensité d'une envie de fumer."
+        },
+        {
+          title: "Évitez les déclencheurs",
+          content: "Identifiez les situations qui vous donnent envie de fumer et essayez de les éviter pendant les premières semaines."
+        },
+        {
+          title: "Occupez vos mains",
+          content: "Gardez vos mains occupées avec un stylo, une balle anti-stress ou tout autre petit objet pour distraire votre esprit."
+        }
+      ];
+      
+      for (const tip of tips) {
+        await this.createHealthTip({
+          title: tip.title,
+          content: tip.content
+        });
+      }
+    }
+  }
+}
+
+// Create and export a DatabaseStorage instance (replaces MemStorage)
+export const storage = new DatabaseStorage();

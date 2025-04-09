@@ -1,6 +1,6 @@
 import express, { type Express } from "express";
 import { createServer, type Server } from "http";
-import { storage } from "./storage";
+import { storage, DatabaseStorage } from "./storage";
 import { z } from "zod";
 import { 
   insertUserSchema, 
@@ -10,6 +10,10 @@ import {
 } from "@shared/schema";
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  // Initialize default health tips
+  if (storage instanceof DatabaseStorage) {
+    await storage.initializeHealthTips();
+  }
   // User routes
   app.post("/api/users", async (req, res) => {
     try {
