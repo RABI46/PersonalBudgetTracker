@@ -58,11 +58,19 @@ export default function UserProfileForm({ userId }: UserProfileFormProps) {
   // Mutation pour mettre à jour le profil
   const updateProfileMutation = useMutation({
     mutationFn: async (data: any) => {
-      const response = await apiRequest('PATCH', `/api/users/${userId}`, data);
-      if (!response.ok) {
-        throw new Error('Erreur lors de la mise à jour du profil');
+      try {
+        console.log("Données envoyées au serveur:", data);
+        const response = await apiRequest('PATCH', `/api/users/${userId}`, data);
+        if (!response.ok) {
+          throw new Error('Erreur lors de la mise à jour du profil');
+        }
+        const result = await response.json();
+        console.log("Réponse du serveur:", result);
+        return result;
+      } catch (error) {
+        console.error("Erreur détaillée:", error);
+        throw error;
       }
-      return response.json();
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [`/api/users/${userId}`] });
@@ -78,7 +86,7 @@ export default function UserProfileForm({ userId }: UserProfileFormProps) {
         description: "Une erreur est survenue lors de la mise à jour du profil.",
         variant: "destructive",
       });
-      console.error(error);
+      console.error("Erreur dans onError:", error);
     }
   });
   

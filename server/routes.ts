@@ -62,6 +62,28 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({ message: "Failed to update user" });
     }
   });
+  
+  // Route PATCH pour mettre à jour partiellement un utilisateur (utilisée pour les préférences de notification)
+  app.patch("/api/users/:id", async (req, res) => {
+    try {
+      const userId = parseInt(req.params.id, 10);
+      const userData = req.body;
+      
+      console.log(`PATCH request for user ${userId}:`, userData);
+      
+      const updatedUser = await storage.updateUser(userId, userData);
+      
+      if (!updatedUser) {
+        return res.status(404).json({ message: "User not found" });
+      }
+      
+      console.log("User updated successfully:", updatedUser);
+      res.json(updatedUser);
+    } catch (error) {
+      console.error("Error updating user:", error);
+      res.status(500).json({ message: "Failed to update user" });
+    }
+  });
 
   // Craving routes
   app.post("/api/cravings", async (req, res) => {
