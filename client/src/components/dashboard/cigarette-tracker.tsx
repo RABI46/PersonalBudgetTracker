@@ -52,17 +52,26 @@ export default function CigaretteTracker({
   // Mutation to log a craving
   const logCravingMutation = useMutation({
     mutationFn: async (cravingData: any) => {
-      const response = await apiRequest('POST', '/api/cravings', {
-        ...cravingData,
-        userId
-      });
-      return response.json();
+      try {
+        const response = await apiRequest('POST', '/api/cravings', {
+          ...cravingData,
+          userId
+        });
+        return response.json();
+      } catch (error) {
+        console.error('Error logging craving:', error);
+        throw error;
+      }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/cravings/user/' + userId] });
       queryClient.invalidateQueries({ queryKey: ['/api/cravings/user/' + userId + '/last'] });
       queryClient.invalidateQueries({ queryKey: ['/api/users/' + userId + '/stats'] });
       setShowCravingModal(false);
+    },
+    onError: (error) => {
+      console.error('Error in mutation:', error);
+      // Keep modal open to allow retrying
     }
   });
   
