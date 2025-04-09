@@ -11,6 +11,13 @@ export const users = pgTable("users", {
   cigarettePackPrice: integer("cigarette_pack_price").notNull(),
   cigarettesPerPack: integer("cigarettes_per_pack").notNull(),
   quitDate: timestamp("quit_date").notNull(),
+  // Notification preferences
+  notifyDailyProgress: boolean("notify_daily_progress").default(true).notNull(),
+  notifyMilestones: boolean("notify_milestones").default(true).notNull(),
+  notifyCravingReminders: boolean("notify_craving_reminders").default(true).notNull(), 
+  notifyTips: boolean("notify_tips").default(true).notNull(),
+  preferredNotificationTime: text("preferred_notification_time").default("08:00").notNull(),
+  emailNotifications: boolean("email_notifications").default(false).notNull(),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 

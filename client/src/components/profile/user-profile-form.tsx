@@ -3,7 +3,10 @@ import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
 import { DEFAULT_CIGARETTE_PACK_PRICE, DEFAULT_CIGARETTES_PER_PACK } from "@/lib/constants";
-import { Save, RefreshCw, AlertTriangle } from "lucide-react";
+import { Save, RefreshCw, AlertTriangle, Bell } from "lucide-react";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 interface UserProfileFormProps {
   userId: number;
@@ -24,6 +27,13 @@ export default function UserProfileForm({ userId }: UserProfileFormProps) {
     cigarettesPerDay: 10,
     packPrice: DEFAULT_CIGARETTE_PACK_PRICE,
     quitDate: "",
+    // Préférences de notification
+    notifyDailyProgress: true,
+    notifyMilestones: true,
+    notifyCravingReminders: true,
+    notifyTips: true,
+    preferredNotificationTime: "08:00",
+    emailNotifications: false
   });
   
   // Mettre à jour le formulaire lorsque les données utilisateur sont chargées
@@ -34,6 +44,13 @@ export default function UserProfileForm({ userId }: UserProfileFormProps) {
         cigarettesPerDay: user.cigarettesPerDay || 10,
         packPrice: user.packPrice || DEFAULT_CIGARETTE_PACK_PRICE,
         quitDate: user.quitDate ? new Date(user.quitDate).toISOString().split('T')[0] : "",
+        // Préférences de notification
+        notifyDailyProgress: user.notifyDailyProgress !== undefined ? user.notifyDailyProgress : true,
+        notifyMilestones: user.notifyMilestones !== undefined ? user.notifyMilestones : true,
+        notifyCravingReminders: user.notifyCravingReminders !== undefined ? user.notifyCravingReminders : true,
+        notifyTips: user.notifyTips !== undefined ? user.notifyTips : true,
+        preferredNotificationTime: user.preferredNotificationTime || "08:00",
+        emailNotifications: user.emailNotifications !== undefined ? user.emailNotifications : false
       });
     }
   }, [user]);
@@ -115,6 +132,22 @@ export default function UserProfileForm({ userId }: UserProfileFormProps) {
     setFormData(prev => ({
       ...prev,
       [name]: type === 'number' ? parseInt(value) : value
+    }));
+  };
+  
+  // Gestion du changement des interrupteurs (switch)
+  const handleSwitchChange = (name: string, checked: boolean) => {
+    setFormData(prev => ({
+      ...prev,
+      [name]: checked
+    }));
+  };
+  
+  // Gestion du changement des sélecteurs
+  const handleSelectChange = (name: string, value: string) => {
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
     }));
   };
   
@@ -241,6 +274,116 @@ export default function UserProfileForm({ userId }: UserProfileFormProps) {
             onChange={handleChange}
             className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
           />
+        </div>
+        
+        {/* Section des préférences de notification */}
+        <div className="border rounded-lg p-5 bg-gray-50">
+          <div className="flex items-center mb-4">
+            <Bell className="h-5 w-5 text-blue-600 mr-2" />
+            <h3 className="text-lg font-medium">Préférences de notification</h3>
+          </div>
+          
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <Label htmlFor="notify-daily-progress" className="text-sm font-medium">
+                  Progression quotidienne
+                </Label>
+                <p className="text-sm text-gray-500">
+                  Recevez des mises à jour sur votre progression chaque jour
+                </p>
+              </div>
+              <Switch 
+                id="notify-daily-progress"
+                checked={formData.notifyDailyProgress}
+                onCheckedChange={(checked) => handleSwitchChange('notifyDailyProgress', checked)}
+              />
+            </div>
+            
+            <div className="flex items-center justify-between">
+              <div>
+                <Label htmlFor="notify-milestones" className="text-sm font-medium">
+                  Jalons importants
+                </Label>
+                <p className="text-sm text-gray-500">
+                  Soyez notifié quand vous atteignez un jalon important de santé
+                </p>
+              </div>
+              <Switch 
+                id="notify-milestones"
+                checked={formData.notifyMilestones}
+                onCheckedChange={(checked) => handleSwitchChange('notifyMilestones', checked)}
+              />
+            </div>
+            
+            <div className="flex items-center justify-between">
+              <div>
+                <Label htmlFor="notify-craving-reminders" className="text-sm font-medium">
+                  Rappels anti-envie
+                </Label>
+                <p className="text-sm text-gray-500">
+                  Recevez des rappels pour vous aider à surmonter les envies de fumer
+                </p>
+              </div>
+              <Switch 
+                id="notify-craving-reminders"
+                checked={formData.notifyCravingReminders}
+                onCheckedChange={(checked) => handleSwitchChange('notifyCravingReminders', checked)}
+              />
+            </div>
+            
+            <div className="flex items-center justify-between">
+              <div>
+                <Label htmlFor="notify-tips" className="text-sm font-medium">
+                  Conseils quotidiens
+                </Label>
+                <p className="text-sm text-gray-500">
+                  Recevez des conseils quotidiens pour vous aider dans votre parcours
+                </p>
+              </div>
+              <Switch 
+                id="notify-tips"
+                checked={formData.notifyTips}
+                onCheckedChange={(checked) => handleSwitchChange('notifyTips', checked)}
+              />
+            </div>
+            
+            <div className="pt-2">
+              <Label htmlFor="preferred-time" className="text-sm font-medium mb-1 block">
+                Heure préférée pour les notifications
+              </Label>
+              <Select 
+                value={formData.preferredNotificationTime}
+                onValueChange={(value) => handleSelectChange('preferredNotificationTime', value)}
+              >
+                <SelectTrigger id="preferred-time">
+                  <SelectValue placeholder="Sélectionnez une heure" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="08:00">Matin (08:00)</SelectItem>
+                  <SelectItem value="12:00">Midi (12:00)</SelectItem>
+                  <SelectItem value="18:00">Soir (18:00)</SelectItem>
+                  <SelectItem value="21:00">Nuit (21:00)</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            
+            <div className="flex items-center justify-between pt-2">
+              <div>
+                <Label htmlFor="email-notifications" className="text-sm font-medium">
+                  Notifications par email
+                </Label>
+                <p className="text-sm text-gray-500">
+                  Recevez également des notifications par email
+                </p>
+              </div>
+              <Switch 
+                id="email-notifications"
+                checked={formData.emailNotifications}
+                onCheckedChange={(checked) => handleSwitchChange('emailNotifications', checked)}
+              />
+            </div>
+          </div>
         </div>
         
         <div className="flex justify-between pt-4 border-t border-gray-200">
