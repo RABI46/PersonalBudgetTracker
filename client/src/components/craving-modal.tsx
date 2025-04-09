@@ -15,6 +15,7 @@ interface CravingModalProps {
 export default function CravingModal({ onClose, onSubmit, isPending }: CravingModalProps) {
   const [intensity, setIntensity] = useState("medium");
   const [context, setContext] = useState("");
+  const [error, setError] = useState<string | null>(null);
   
   const handleBackdropClick = (e: React.MouseEvent) => {
     // Close modal when clicking outside the content
@@ -24,16 +25,24 @@ export default function CravingModal({ onClose, onSubmit, isPending }: CravingMo
   };
   
   const handleSubmit = (resisted: boolean) => {
+    // Reset error
+    setError(null);
+    
     if (!context) {
-      // Require selecting a context
+      setError("Veuillez sélectionner un contexte");
       return;
     }
     
-    onSubmit({
-      intensity,
-      context,
-      resisted
-    });
+    try {
+      onSubmit({
+        intensity,
+        context,
+        resisted
+      });
+    } catch (err) {
+      setError("Une erreur est survenue. Veuillez réessayer.");
+      console.error('Error submitting craving:', err);
+    }
   };
   
   return (
@@ -95,6 +104,12 @@ export default function CravingModal({ onClose, onSubmit, isPending }: CravingMo
               ))}
             </div>
           </div>
+          
+          {error && (
+            <div className="mb-4 p-3 bg-red-50 border border-red-200 text-red-700 rounded-lg">
+              {error}
+            </div>
+          )}
           
           <div className="flex mt-6 space-x-3">
             <button
