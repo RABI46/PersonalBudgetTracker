@@ -1,0 +1,1075 @@
+ // Fichier: package.json
+{
+  "name": "stopclope",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "framer-motion": "^10.16.4",
+    "lucide-react": "^0.290.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-router-dom": "^6.18.0",
+    "recharts": "^2.9.0"
+  },
+  "devDependencies": {
+    "@types/react": "^18.2.15",
+    "@types/react-dom": "^18.2.7",
+    "@vitejs/plugin-react": "^4.0.3",
+    "autoprefixer": "^10.4.16",
+    "postcss": "^8.4.31",
+    "tailwindcss": "^3.3.5",
+    "typescript": "^5.0.2",
+    "vite": "^4.4.5"
+  }
+}
+
+// Fichier: vite.config.ts
+import { defineConfig } from 'vite';
+import react from '@vitejs/plugin-react';
+
+export default defineConfig({
+  plugins: [react()],
+});
+
+// Fichier: tsconfig.json
+{
+  "compilerOptions": {
+    "target": "ES2020",
+    "useDefineForClassFields": true,
+    "lib": ["ES2020", "DOM", "DOM.Iterable"],
+    "module": "ESNext",
+    "skipLibCheck": true,
+    "moduleResolution": "bundler",
+    "allowImportingTsExtensions": true,
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "noEmit": true,
+    "jsx": "react-jsx",
+    "strict": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noFallthroughCasesInSwitch": true
+  },
+  "include": ["src"],
+  "references": [{ "path": "./tsconfig.node.json" }]
+}
+
+// Fichier: tsconfig.node.json
+{
+  "compilerOptions": {
+    "composite": true,
+    "skipLibCheck": true,
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "allowSyntheticDefaultImports": true
+  },
+  "include": ["vite.config.ts"]
+}
+
+// Fichier: tailwind.config.js
+/** @type {import('tailwindcss').Config} */
+export default {
+  content: [
+    "./index.html",
+    "./src/**/*.{js,ts,jsx,tsx}",
+  ],
+  theme: {
+    extend: {},
+  },
+  plugins: [],
+};
+
+// Fichier: postcss.config.js
+export default {
+  plugins: {
+    tailwindcss: {},
+    autoprefixer: {},
+  },
+};
+
+// Fichier: index.html
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <meta name="theme-color" content="#ffffff" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="apple-mobile-web-app-title" content="StopClope" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="/manifest.json" />
+    <title>StopClope - L'Application Anti-Tabac</title>
+    <meta name="description" content="StopClope est une application web qui vous aide à arrêter de fumer avec des outils de suivi, des conseils et du soutien personnalisé." />
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
+
+// Fichier: src/main.tsx
+import React from 'react';
+import ReactDOM from 'react-dom/client';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import App from './App';
+import Home from './pages/Home';
+import Dashboard from './pages/Dashboard';
+import Profile from './pages/Profile';
+import Statistics from './pages/Statistics';
+import Tips from './pages/Tips';
+import './index.css';
+
+ReactDOM.createRoot(document.getElementById('root')!).render(
+  <React.StrictMode>
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<App />} />
+        <Route path="/home" element={<Home />} />
+        <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/profile" element={<Profile />} />
+        <Route path="/statistics" element={<Statistics />} />
+        <Route path="/tips" element={<Tips />} />
+      </Routes>
+    </BrowserRouter>
+  </React.StrictMode>
+);
+
+// Fichier: src/index.css
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+  -webkit-tap-highlight-color: transparent;
+}
+
+// Fichier: src/App.tsx
+import React from 'react';
+import { motion } from 'framer-motion';
+import { Cigarette, Timer, PiggyBank, LineChart, Cloud, Bell, Heart } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+
+function FeatureCard({ icon: Icon, title, description }: { icon: React.ElementType, title: string, description: string }) {
+  return (
+    <motion.div
+      whileHover={{ scale: 1.05 }}
+      className="bg-white p-6 rounded-xl shadow-lg"
+    >
+      <div className="flex items-center justify-center w-12 h-12 mb-4 bg-blue-100 rounded-full">
+        <Icon className="w-6 h-6 text-blue-600" />
+      </div>
+      <h3 className="text-xl font-semibold mb-2">{title}</h3>
+      <p className="text-gray-600">{description}</p>
+    </motion.div>
+  );
+}
+
+function App() {
+  const navigate = useNavigate();
+
+  const handleStart = () => {
+    navigate('/home');
+  };
+
+  return (
+    <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white">
+      {/* Hero Section */}
+      <header className="container mx-auto px-4 py-16 text-center">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8 }}
+        >
+          <h1 className="text-5xl font-bold mb-6 text-blue-900">
+            StopClope
+          </h1>
+          <p className="text-2xl text-gray-700 mb-8">
+            L'Application web Anti-Tabac qui rend l'arrêt du tabac plus facile que jamais
+          </p>
+          <button
+            onClick={handleStart}
+            className="bg-blue-600 text-white px-8 py-4 rounded-full text-lg font-semibold hover:bg-blue-700 transition-colors"
+          >
+            Commencer Maintenant
+          </button>
+        </motion.div>
+      </header>
+
+      {/* Features Grid */}
+      <section className="container mx-auto px-4 py-16">
+        <h2 className="text-3xl font-bold text-center mb-12 text-gray-900">
+          Fonctionnalités Principales
+        </h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <FeatureCard
+            icon={Timer}
+            title="Suivi des cigarettes"
+            description="Enregistrez et chronométrez chaque cigarette avec un simple clic"
+          />
+          <FeatureCard
+            icon={PiggyBank}
+            title="Calculateur d'économies"
+            description="Visualisez l'argent économisé jour après jour"
+          />
+          <FeatureCard
+            icon={Heart}
+            title="Conseils santé"
+            description="Recevez des conseils quotidiens pour vous motiver"
+          />
+          <FeatureCard
+            icon={Bell}
+            title="Notifications"
+            description="Restez motivé avec des rappels personnalisés"
+          />
+          <FeatureCard
+            icon={LineChart}
+            title="Statistiques"
+            description="Suivez vos progrès avec des graphiques interactifs"
+          />
+          <FeatureCard
+            icon={Cloud}
+            title="Sauvegarde cloud"
+            description="Accédez à vos données sur tous vos appareils"
+          />
+        </div>
+      </section>
+
+      {/* Why StopClope Section */}
+      <section className="bg-blue-900 text-white py-16">
+        <div className="container mx-auto px-4">
+          <h2 className="text-3xl font-bold text-center mb-12">
+            Pourquoi Choisir StopClope ?
+          </h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 text-center">
+            <div>
+              <h3 className="text-xl font-semibold mb-4">Soutien Immédiat</h3>
+              <p className="text-blue-200">Visualisez vos efforts dès le premier jour</p>
+            </div>
+            <div>
+              <h3 className="text-xl font-semibold mb-4">Contrôle Total</h3>
+              <p className="text-blue-200">Personnalisez tous les paramètres selon vos besoins</p>
+            </div>
+            <div>
+              <h3 className="text-xl font-semibold mb-4">Accessibilité</h3>
+              <p className="text-blue-200">Vos données sécurisées et accessibles partout</p>
+            </div>
+            <div>
+              <h3 className="text-xl font-semibold mb-4">Personnalisation</h3>
+              <p className="text-blue-200">Une expérience adaptée à votre rythme</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* CTA Section */}
+      <section className="container mx-auto px-4 py-16 text-center">
+        <h2 className="text-3xl font-bold mb-6">
+          Prêt à arrêter de fumer ?
+        </h2>
+        <p className="text-xl text-gray-600 mb-8">
+          Rejoignez des milliers d'utilisateurs qui ont déjà commencé leur voyage vers une vie sans tabac
+        </p>
+        <button
+          onClick={handleStart}
+          className="bg-blue-600 text-white px-8 py-4 rounded-full text-lg font-semibold hover:bg-blue-700 transition-colors"
+        >
+          Commencer Gratuitement
+        </button>
+      </section>
+
+      {/* Footer */}
+      <footer className="bg-gray-50 py-8">
+        <div className="container mx-auto px-4 text-center text-gray-600">
+          <p>© 2024 StopClope. Tous droits réservés.</p>
+        </div>
+      </footer>
+    </div>
+  );
+}
+
+export default App;
+
+// Fichier: src/components/Layout.tsx
+import React, { ReactNode } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
+import { Home, PieChart, User, BookOpen, Menu, X } from 'lucide-react';
+import { motion } from 'framer-motion';
+
+type LayoutProps = {
+  children: ReactNode;
+  title: string;
+};
+
+function NavItem({ icon: Icon, text, to, active }: { icon: React.ElementType, text: string, to: string, active: boolean }) {
+  const navigate = useNavigate();
+
+  return (
+    <button
+      onClick={() => navigate(to)}
+      className={`flex items-center p-3 rounded-lg w-full ${active ? 'bg-blue-100 text-blue-700' : 'hover:bg-gray-100'}`}
+    >
+      <Icon className="w-5 h-5 mr-3" />
+      <span className="font-medium">{text}</span>
+    </button>
+  );
+}
+
+function Layout({ children, title }: LayoutProps) {
+  const location = useLocation();
+  const [menuOpen, setMenuOpen] = React.useState(false);
+
+  return (
+    <div className="min-h-screen bg-gray-50 flex flex-col">
+      {/* Mobile Header */}
+      <header className="bg-white p-4 shadow-sm flex justify-between items-center md:hidden">
+        <h1 className="text-xl font-bold text-blue-900">StopClope</h1>
+        <button
+          onClick={() => setMenuOpen(!menuOpen)}
+          className="p-2 rounded-full hover:bg-gray-100"
+        >
+          {menuOpen ? <X /> : <Menu />}
+        </button>
+      </header>
+
+      {/* Mobile Menu Drawer */}
+      {menuOpen && (
+        <motion.div
+          initial={{ x: -300 }}
+          animate={{ x: 0 }}
+          className="fixed inset-0 z-50 bg-white md:hidden"
+        >
+          <div className="flex flex-col h-full">
+            <div className="p-4 flex justify-between items-center border-b">
+              <h2 className="text-xl font-bold text-blue-900">Menu</h2>
+              <button
+                onClick={() => setMenuOpen(false)}
+                className="p-2 rounded-full hover:bg-gray-100"
+              >
+                <X />
+              </button>
+            </div>
+            <nav className="p-4 flex-1">
+              <NavItem icon={Home} text="Accueil" to="/home" active={location.pathname === '/home'} />
+              <NavItem icon={PieChart} text="Tableau de bord" to="/dashboard" active={location.pathname === '/dashboard'} />
+              <NavItem icon={User} text="Profil" to="/profile" active={location.pathname === '/profile'} />
+              <NavItem icon={BookOpen} text="Conseils" to="/tips" active={location.pathname === '/tips'} />
+            </nav>
+            <div className="p-4 border-t text-center text-gray-500 text-sm">
+              © 2024 StopClope
+            </div>
+          </div>
+        </motion.div>
+      )}
+
+      <div className="flex flex-1">
+        {/* Desktop Sidebar */}
+        <aside className="hidden md:block w-64 bg-white border-r p-4 fixed h-full">
+          <div className="mb-8">
+            <h1 className="text-2xl font-bold text-blue-900">StopClope</h1>
+          </div>
+          <nav className="space-y-2">
+            <NavItem icon={Home} text="Accueil" to="/home" active={location.pathname === '/home'} />
+            <NavItem icon={PieChart} text="Tableau de bord" to="/dashboard" active={location.pathname === '/dashboard'} />
+            <NavItem icon={User} text="Profil" to="/profile" active={location.pathname === '/profile'} />
+            <NavItem icon={BookOpen} text="Conseils" to="/tips" active={location.pathname === '/tips'} />
+          </nav>
+        </aside>
+
+        {/* Main Content */}
+        <main className="md:ml-64 flex-1 p-4">
+          <div className="container mx-auto">
+            <h1 className="text-2xl font-bold mb-6">{title}</h1>
+            {children}
+          </div>
+        </main>
+      </div>
+    </div>
+  );
+}
+
+export default Layout;
+
+// Fichier: src/components/StatCard.tsx
+import React from 'react';
+import { motion } from 'framer-motion';
+
+type StatCardProps = {
+  title: string;
+  value: string;
+  icon: React.ReactNode;
+  color: string;
+};
+
+function StatCard({ title, value, icon, color }: StatCardProps) {
+  return (
+    <motion.div
+      whileHover={{ scale: 1.02 }}
+      className={`bg-white p-6 rounded-xl shadow-md border-l-4 ${color}`}
+    >
+      <div className="flex justify-between items-start mb-4">
+        <h3 className="text-lg font-medium text-gray-700">{title}</h3>
+        <div className="text-gray-400">
+          {icon}
+        </div>
+      </div>
+      <p className="text-3xl font-bold">{value}</p>
+    </motion.div>
+  );
+}
+
+export default StatCard;
+
+// Fichier: src/pages/Home.tsx
+import React from 'react';
+import { useNavigate } from 'react-router-dom';
+import Layout from '../components/Layout';
+import { motion } from 'framer-motion';
+import { Clock, DollarSign, Cigarette, Award } from 'lucide-react';
+import StatCard from '../components/StatCard';
+
+function Home() {
+  const navigate = useNavigate();
+
+  const stats = [
+    { title: "Temps sans cigarette", value: "0 jours", icon: <Clock />, color: "border-blue-500" },
+    { title: "Économies réalisées", value: "0,00 €", icon: <DollarSign />, color: "border-green-500" },
+    { title: "Cigarettes évitées", value: "0", icon: <Cigarette />, color: "border-red-500" },
+    { title: "Objectif suivant", value: "24 heures", icon: <Award />, color: "border-yellow-500" }
+  ];
+
+  return (
+    <Layout title="Tableau de bord">
+      <div className="bg-white rounded-xl shadow-md p-6 mb-8">
+        <h2 className="text-xl font-semibold text-gray-800 mb-4">Bienvenue sur StopClope</h2>
+        <p className="text-gray-600">
+          Votre parcours sans tabac commence ici. Utilisez cette application pour suivre votre progression,
+          visualiser vos économies et améliorer votre santé jour après jour.
+        </p>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        {stats.map((stat, index) => (
+          <StatCard
+            key={index}
+            title={stat.title}
+            value={stat.value}
+            icon={stat.icon}
+            color={stat.color}
+          />
+        ))}
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="bg-white rounded-xl shadow-md p-6">
+          <h3 className="text-lg font-semibold text-gray-800 mb-4">Actions rapides</h3>
+          <div className="space-y-4">
+            <button
+              onClick={() => navigate('/dashboard')}
+              className="w-full py-3 px-4 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+            >
+              Voir mes statistiques détaillées
+            </button>
+            <button
+              className="w-full py-3 px-4 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors"
+            >
+              J'ai une forte envie de fumer
+            </button>
+          </div>
+        </div>
+
+        <div className="bg-white rounded-xl shadow-md p-6">
+          <h3 className="text-lg font-semibold text-gray-800 mb-4">Conseil du jour</h3>
+          <div className="bg-blue-50 p-4 rounded-lg">
+            <p className="text-blue-800">
+              Buvez beaucoup d'eau pour aider votre corps à éliminer la nicotine et réduire les envies.
+            </p>
+          </div>
+          <button
+            onClick={() => navigate('/tips')}
+            className="mt-4 text-blue-600 hover:underline"
+          >
+            Voir tous les conseils →
+          </button>
+        </div>
+      </div>
+    </Layout>
+  );
+}
+
+export default Home;
+
+// Fichier: src/pages/Dashboard.tsx
+import React, { useState } from 'react';
+import Layout from '../components/Layout';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { motion } from 'framer-motion';
+import { Calendar, Clock } from 'lucide-react';
+
+// Données fictives pour le graphique
+const data = [
+  { day: 'Lun', cigarettes: 15 },
+  { day: 'Mar', cigarettes: 12 },
+  { day: 'Mer', cigarettes: 10 },
+  { day: 'Jeu', cigarettes: 8 },
+  { day: 'Ven', cigarettes: 5 },
+  { day: 'Sam', cigarettes: 3 },
+  { day: 'Dim', cigarettes: 0 }
+];
+
+function Dashboard() {
+  const [activeTab, setActiveTab] = useState('week');
+
+  return (
+    <Layout title="Statistiques détaillées">
+      <div className="bg-white rounded-xl shadow-md p-6 mb-8">
+        <div className="flex items-center justify-between mb-6">
+          <h2 className="text-xl font-semibold text-gray-800">Évolution de la consommation</h2>
+          <div className="bg-gray-100 rounded-lg overflow-hidden flex">
+            <button
+              onClick={() => setActiveTab('week')}
+              className={`py-2 px-4 ${activeTab === 'week' ? 'bg-blue-600 text-white' : 'text-gray-600'}`}
+            >
+              Semaine
+            </button>
+            <button
+              onClick={() => setActiveTab('month')}
+              className={`py-2 px-4 ${activeTab === 'month' ? 'bg-blue-600 text-white' : 'text-gray-600'}`}
+            >
+              Mois
+            </button>
+          </div>
+        </div>
+
+        <div className="h-72">
+          <ResponsiveContainer width="100%" height="100%">
+            <LineChart data={data}>
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="day" />
+              <YAxis />
+              <Tooltip />
+              <Line type="monotone" dataKey="cigarettes" stroke="#3b82f6" strokeWidth={2} />
+            </LineChart>
+          </ResponsiveContainer>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+        <motion.div whileHover={{ scale: 1.02 }} className="bg-white rounded-xl shadow-md p-6">
+          <div className="flex items-center mb-4">
+            <Calendar className="w-5 h-5 text-blue-600 mr-2" />
+            <h3 className="text-lg font-semibold text-gray-800">Jours sans fumer</h3>
+          </div>
+          <div className="text-center py-8">
+            <p className="text-5xl font-bold text-blue-700">0</p>
+            <p className="text-gray-500 mt-2">jours</p>
+          </div>
+        </motion.div>
+
+        <motion.div whileHover={{ scale: 1.02 }} className="bg-white rounded-xl shadow-md p-6">
+          <div className="flex items-center mb-4">
+            <Clock className="w-5 h-5 text-green-600 mr-2" />
+            <h3 className="text-lg font-semibold text-gray-800">Temps économisé</h3>
+          </div>
+          <div className="text-center py-8">
+            <p className="text-5xl font-bold text-green-700">0</p>
+            <p className="text-gray-500 mt-2">minutes</p>
+          </div>
+        </motion.div>
+      </div>
+
+      <div className="bg-white rounded-xl shadow-md p-6">
+        <h3 className="text-lg font-semibold text-gray-800 mb-4">Objectifs</h3>
+        <div className="space-y-4">
+          <div>
+            <div className="flex justify-between mb-1">
+              <span className="text-sm font-medium text-gray-700">24 heures sans fumer</span>
+              <span className="text-sm font-medium text-gray-700">0%</span>
+            </div>
+            <div className="w-full bg-gray-200 rounded-full h-2.5">
+              <div className="bg-blue-600 h-2.5 rounded-full" style={{ width: '0%' }}></div>
+            </div>
+          </div>
+
+          <div>
+            <div className="flex justify-between mb-1">
+              <span className="text-sm font-medium text-gray-700">Une semaine sans fumer</span>
+              <span className="text-sm font-medium text-gray-700">0%</span>
+            </div>
+            <div className="w-full bg-gray-200 rounded-full h-2.5">
+              <div className="bg-blue-600 h-2.5 rounded-full" style={{ width: '0%' }}></div>
+            </div>
+          </div>
+
+          <div>
+            <div className="flex justify-between mb-1">
+              <span className="text-sm font-medium text-gray-700">Un mois sans fumer</span>
+              <span className="text-sm font-medium text-gray-700">0%</span>
+            </div>
+            <div className="w-full bg-gray-200 rounded-full h-2.5">
+              <div className="bg-blue-600 h-2.5 rounded-full" style={{ width: '0%' }}></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </Layout>
+  );
+}
+
+export default Dashboard;
+
+// Fichier: src/pages/Profile.tsx
+import React, { useState } from 'react';
+import Layout from '../components/Layout';
+import { motion } from 'framer-motion';
+import { User, DollarSign, Cigarette } from 'lucide-react';
+
+function Profile() {
+  const [formData, setFormData] = useState({
+    name: '',
+    cigarettesPerDay: 20,
+    cigarettesPerPack: 20,
+    pricePerPack: 10.5,
+  });
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setFormData({
+      ...formData,
+      [name]: name === 'name' ? value : parseFloat(value),
+    });
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    // Ici vous pourriez sauvegarder les données
+    alert('Profil mis à jour !');
+  };
+
+  return (
+    <Layout title="Mon Profil">
+      <div className="bg-white rounded-xl shadow-md p-6 mb-8">
+        <div className="flex items-center mb-6">
+          <div className="bg-blue-100 p-3 rounded-full">
+            <User className="w-6 h-6 text-blue-600" />
+          </div>
+          <h2 className="text-xl font-semibold text-gray-800 ml-3">Informations personnelles</h2>
+        </div>
+
+        <form onSubmit={handleSubmit}>
+          <div className="space-y-6">
+            <div>
+              <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">
+                Votre prénom
+              </label>
+              <input
+                type="text"
+                id="name"
+                name="name"
+                value={formData.name}
+                onChange={handleChange}
+                placeholder="Entrez votre prénom"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
+              />
+            </div>
+
+            <div>
+              <label htmlFor="cigarettesPerDay" className="block text-sm font-medium text-gray-700 mb-1">
+                Nombre de cigarettes par jour
+              </label>
+              <div className="flex items-center">
+                <Cigarette className="w-5 h-5 text-gray-400 mr-2" />
+                <input
+                  type="number"
+                  id="cigarettesPerDay"
+                  name="cigarettesPerDay"
+                  value={formData.cigarettesPerDay}
+                  onChange={handleChange}
+                  min="1"
+                  max="100"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
+                />
+              </div>
+            </div>
+
+            <div>
+              <label htmlFor="cigarettesPerPack" className="block text-sm font-medium text-gray-700 mb-1">
+                Nombre de cigarettes par paquet
+              </label>
+              <input
+                type="number"
+                id="cigarettesPerPack"
+                name="cigarettesPerPack"
+                value={formData.cigarettesPerPack}
+                onChange={handleChange}
+                min="1"
+                max="100"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
+              />
+            </div>
+
+            <div>
+              <label htmlFor="pricePerPack" className="block text-sm font-medium text-gray-700 mb-1">
+                Prix par paquet (€)
+              </label>
+              <div className="flex items-center">
+                <DollarSign className="w-5 h-5 text-gray-400 mr-2" />
+                <input
+                  type="number"
+                  id="pricePerPack"
+                  name="pricePerPack"
+                  value={formData.pricePerPack}
+                  onChange={handleChange}
+                  min="0"
+                  step="0.01"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
+                />
+              </div>
+            </div>
+
+            <button
+              type="submit"
+              className="w-full py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+            >
+              Enregistrer les modifications
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <div className="bg-white rounded-xl shadow-md p-6">
+        <h3 className="text-lg font-semibold text-gray-800 mb-4">Paramètres de l'application</h3>
+        <div className="space-y-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="font-medium">Notifications</p>
+              <p className="text-sm text-gray-500">Recevoir des rappels quotidiens</p>
+            </div>
+            <label className="relative inline-flex items-center cursor-pointer">
+              <input type="checkbox" className="sr-only peer" checked />
+              <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+            </label>
+          </div>
+
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="font-medium">Mode sombre</p>
+              <p className="text-sm text-gray-500">Thème de l'application</p>
+            </div>
+            <label className="relative inline-flex items-center cursor-pointer">
+              <input type="checkbox" className="sr-only peer" />
+              <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+            </label>
+          </div>
+        </div>
+      </div>
+    </Layout>
+  );
+}
+
+export default Profile;
+
+// Fichier: src/pages/Statistics.tsx
+import React, { useState } from 'react';
+import Layout from '../components/Layout';
+import { PieChart, Pie, Cell, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip } from 'recharts';
+import { Calendar, ArrowLeft, ArrowRight } from 'lucide-react';
+
+// Données fictives pour les graphiques
+const pieData = [
+  { name: 'Matin', value: 8 },
+  { name: 'Après-midi', value: 5 },
+  { name: 'Soir', value: 7 }
+];
+
+const barData = [
+  { day: 'Lun', cigarettes: 15 },
+  { day: 'Mar', cigarettes: 12 },
+  { day: 'Mer', cigarettes: 10 },
+  { day: 'Jeu', cigarettes: 8 },
+  { day: 'Ven', cigarettes: 5 },
+  { day: 'Sam', cigarettes: 3 },
+  { day: 'Dim', cigarettes: 0 }
+];
+
+const COLORS = ['#3b82f6', '#ef4444', '#f59e0b', '#10b981'];
+
+function Statistics() {
+  const [currentWeek, setCurrentWeek] = useState('Semaine du 1 au 7 mars 2024');
+
+  return (
+    <Layout title="Analyse statistique">
+      <div className="bg-white rounded-xl shadow-md p-6 mb-8">
+        <div className="flex items-center justify-between mb-6">
+          <h2 className="text-xl font-semibold text-gray-800">Répartition par moment de la journée</h2>
+        </div>
+
+        <div className="h-72">
+          <ResponsiveContainer width="100%" height="100%">
+            <PieChart>
+              <Pie
+                data={pieData}
+                cx="50%"
+                cy="50%"
+                labelLine={false}
+                label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
+                outerRadius={80}
+                fill="#8884d8"
+                dataKey="value"
+              >
+                {pieData.map((entry, index) => (
+                  <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                ))}
+              </Pie>
+              <Tooltip />
+            </PieChart>
+          </ResponsiveContainer>
+        </div>
+      </div>
+
+      <div className="bg-white rounded-xl shadow-md p-6 mb-8">
+        <div className="flex items-center justify-between mb-6">
+          <h2 className="text-xl font-semibold text-gray-800">Évolution hebdomadaire</h2>
+          <div className="flex items-center">
+            <button className="p-2 hover:bg-gray-100 rounded-full">
+              <ArrowLeft className="w-5 h-5 text-gray-600" />
+            </button>
+            <span className="mx-4 text-gray-700 flex items-center">
+              <Calendar className="w-4 h-4 mr-2" /> {currentWeek}
+            </span>
+            <button className="p-2 hover:bg-gray-100 rounded-full">
+              <ArrowRight className="w-5 h-5 text-gray-600" />
+            </button>
+          </div>
+        </div>
+
+        <div className="h-72">
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart data={barData}>
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="day" />
+              <YAxis />
+              <Tooltip />
+              <Bar dataKey="cigarettes" fill="#3b82f6" />
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
+      </div>
+
+      <div className="bg-white rounded-xl shadow-md p-6">
+        <h3 className="text-lg font-semibold text-gray-800 mb-4">Résumé des statistiques</h3>
+        <div className="space-y-4">
+          <div className="p-4 border border-gray-200 rounded-lg">
+            <p className="text-sm text-gray-500">Consommation moyenne quotidienne</p>
+            <p className="text-2xl font-bold text-gray-900">7.6 cigarettes</p>
+          </div>
+
+          <div className="p-4 border border-gray-200 rounded-lg">
+            <p className="text-sm text-gray-500">Moment pic de consommation</p>
+            <p className="text-2xl font-bold text-gray-900">Matin (8h - 10h)</p>
+          </div>
+
+          <div className="p-4 border border-gray-200 rounded-lg">
+            <p className="text-sm text-gray-500">Réduction depuis le début</p>
+            <p className="text-2xl font-bold text-green-600">-68%</p>
+          </div>
+        </div>
+      </div>
+    </Layout>
+  );
+}
+
+export default Statistics;
+
+// Fichier: src/pages/Tips.tsx
+import React, { useState } from 'react';
+import Layout from '../components/Layout';
+import { motion } from 'framer-motion';
+import { Heart, Brain, Activity, ThumbsUp, Clock, Search } from 'lucide-react';
+
+// Liste fictive de conseils
+const allTips = [
+  {
+    id: 1,
+    title: "Buvez beaucoup d'eau",
+    description: "Boire au moins 2 litres d'eau par jour aide à éliminer la nicotine plus rapidement et réduit les envies.",
+    category: "santé",
+    icon: <Heart className="w-5 h-5" />
+  },
+  {
+    id: 2,
+    title: "Exercice de respiration",
+    description: "Lorsque vous avez envie de fumer, respirez profondément 10 fois pour calmer le système nerveux.",
+    category: "mental",
+    icon: <Brain className="w-5 h-5" />
+  },
+  {
+    id: 3,
+    title: "Activité physique",
+    description: "15 minutes d'exercice peuvent réduire immédiatement l'envie de fumer.",
+    category: "activité",
+    icon: <Activity className="w-5 h-5" />
+  },
+  {
+    id: 4,
+    title: "Remplacez par un fruit",
+    description: "Mangez une pomme ou une carotte quand l'envie de fumer se fait sentir.",
+    category: "alimentation",
+    icon: <ThumbsUp className="w-5 h-5" />
+  },
+  {
+    id: 5,
+    title: "Attendez 10 minutes",
+    description: "Les envies de fumer ne durent généralement que quelques minutes. Chronométrez et tenez bon.",
+    category: "mental",
+    icon: <Clock className="w-5 h-5" />
+  }
+];
+
+function TipCard({ tip }: { tip: typeof allTips[0] }) {
+  return (
+    <motion.div
+      whileHover={{ scale: 1.02 }}
+      className="bg-white p-6 rounded-xl shadow-md border-l-4 border-blue-500"
+    >
+      <div className="flex items-center mb-3">
+        <div className="bg-blue-100 p-2 rounded-full text-blue-600 mr-3">
+          {tip.icon}
+        </div>
+        <h3 className="text-lg font-semibold">{tip.title}</h3>
+      </div>
+      <p className="text-gray-600">{tip.description}</p>
+      <div className="mt-4">
+        <span className="inline-block bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full">
+          {tip.category}
+        </span>
+      </div>
+    </motion.div>
+  );
+}
+
+function Tips() {
+  const [searchTerm, setSearchTerm] = useState('');
+  const [filter, setFilter] = useState('tous');
+
+  const filteredTips = allTips.filter(tip => {
+    const matchesSearch = tip.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                        tip.description.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesFilter = filter === 'tous' || tip.category === filter;
+    return matchesSearch && matchesFilter;
+  });
+
+  return (
+    <Layout title="Conseils et astuces">
+      <div className="bg-white rounded-xl shadow-md p-6 mb-8">
+        <h2 className="text-xl font-semibold text-gray-800 mb-4">Trouvez le conseil dont vous avez besoin</h2>
+
+        <div className="relative mb-6">
+          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+            <Search className="h-5 w-5 text-gray-400" />
+          </div>
+          <input
+            type="text"
+            className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+            placeholder="Rechercher un conseil..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
+        </div>
+
+        <div className="flex flex-wrap gap-2 mb-6">
+          <button
+            onClick={() => setFilter('tous')}
+            className={`px-3 py-1 rounded-full text-sm ${filter === 'tous' ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-800'}`}
+          >
+            Tous
+          </button>
+          <button
+            onClick={() => setFilter('santé')}
+            className={`px-3 py-1 rounded-full text-sm ${filter === 'santé' ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-800'}`}
+          >
+            Santé
+          </button>
+          <button
+            onClick={() => setFilter('mental')}
+            className={`px-3 py-1 rounded-full text-sm ${filter === 'mental' ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-800'}`}
+          >
+            Mental
+          </button>
+          <button
+            onClick={() => setFilter('activité')}
+            className={`px-3 py-1 rounded-full text-sm ${filter === 'activité' ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-800'}`}
+          >
+            Activité
+          </button>
+          <button
+            onClick={() => setFilter('alimentation')}
+            className={`px-3 py-1 rounded-full text-sm ${filter === 'alimentation' ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-800'}`}
+          >
+            Alimentation
+          </button>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {filteredTips.length > 0 ? (
+          filteredTips.map(tip => <TipCard key={tip.id} tip={tip} />)
+        ) : (
+          <div className="col-span-2 text-center py-12">
+            <p className="text-gray-500">Aucun conseil trouvé pour votre recherche.</p>
+          </div>
+        )}
+      </div>
+    </Layout>
+  );
+}
+
+export default Tips;
+
+// Fichier: public/manifest.json
+{
+  "name": "StopClope",
+  "short_name": "StopClope",
+  "description": "Application web pour arrêter de fumer",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#3b82f6",
+  "icons": [
+    {
+      "src": "favicon.svg",
+      "sizes": "48x48 72x72 96x96 128x128 256x256"
+    },
+    {
+      "src": "icon-192.png",
+      "type": "image/png",
+      "sizes": "192x192"
+    },
+    {
+      "src": "icon-512.png",
+      "type": "image/png",
+      "sizes": "512x512"
+    }
+  ]
+}
+
+// Fichier: public/_redirects
+/* /index.html 200
+
+// Fichier: public/favicon.svg
+<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+  <path d="M20 12V22H4V12"></path>
+  <path d="M22 7H2V12H22V7Z"></path>
+  <line x1="12" y1="22" x2="12" y2="7"></line>
+  <path d="M12 7H7.5C6.837 7 6.2011 6.7366 5.7322 6.2678C5.2634 5.7989 5 5.163 5 4.5C5 3.837 5.2634 3.2011 5.7322 2.7322C6.2011 2.2634 6.837 2 7.5 2C11 2 12 7 12 7Z"></path>
+  <path d="M12 7H16.5C17.163 7 17.7989 6.7366 18.2678 6.2678C18.7366 5.7989 19 5.163 19 4.5C19 3.837 18.7366 3.2011 18.2678 2.7322C17.7989 2.2634 17.163 2 16.5 2C13 2 12 7 12 7Z"></path>
+</svg>
