@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Page Test Simple</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        line-height: 1.6;
+        margin: 0;
+        padding: 20px;
+        background-color: #f5f5f5;
+      }
+      .container {
+        max-width: 600px;
+        margin: 0 auto;
+        background-color: white;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      }
+      h1 {
+        color: #333;
+        text-align: center;
+      }
+      .counter {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 20px 0;
+      }
+      button {
+        background-color: #4CAF50;
+        border: none;
+        color: white;
+        padding: 10px 15px;
+        margin: 0 10px;
+        border-radius: 5px;
+        cursor: pointer;
+      }
+      button:hover {
+        background-color: #3e8e41;
+      }
+      #count {
+        font-size: 24px;
+        font-weight: bold;
+        margin: 0 15px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>Page Test Simple</h1>
+      <p>Cette page est un test pour vérifier si les fonctionnalités de base fonctionnent.</p>
+      
+      <div class="counter">
+        <button id="decrease">Diminuer</button>
+        <span id="count">0</span>
+        <button id="increase">Augmenter</button>
+      </div>
+      
+      <p id="message">Cliquez sur les boutons pour modifier le compteur.</p>
+    </div>
+    
+    <script>
+      // Script simple pour gérer le compteur
+      let count = 0;
+      const countDisplay = document.getElementById('count');
+      const message = document.getElementById('message');
+      
+      document.getElementById('decrease').addEventListener('click', function() {
+        count--;
+        countDisplay.textContent = count;
+        message.textContent = 'Compteur diminué à ' + count;
+      });
+      
+      document.getElementById('increase').addEventListener('click', function() {
+        count++;
+        countDisplay.textContent = count;
+        message.textContent = 'Compteur augmenté à ' + count;
+      });
+    </script>
+  </body>
+</html>
