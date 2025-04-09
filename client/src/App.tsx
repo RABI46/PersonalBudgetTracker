@@ -1,10 +1,11 @@
 import { useState } from "react";
+import { Route, Switch, Link } from "wouter";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { queryClient } from "./lib/queryClient";
 import { Toaster } from "@/components/ui/toaster";
 
-// Component simplifié pour validation
-function SimpleCounter() {
+// Page d'accueil simplifiée
+function HomePage() {
   const [count, setCount] = useState(0);
   const [error, setError] = useState<string | null>(null);
   
@@ -56,12 +57,11 @@ function SimpleCounter() {
         </div>
         
         <div className="mt-6 pt-4 border-t border-gray-200">
-          <button 
-            onClick={() => window.location.href = '/dashboard'}
-            className="w-full py-2 bg-green-500 hover:bg-green-600 text-white rounded-lg"
-          >
-            Essayer d'accéder au Dashboard
-          </button>
+          <Link href="/dashboard">
+            <a className="block w-full py-2 bg-green-500 hover:bg-green-600 text-white rounded-lg text-center">
+              Accéder au Dashboard
+            </a>
+          </Link>
         </div>
         
         <p className="text-gray-600 text-center mt-4">
@@ -72,10 +72,82 @@ function SimpleCounter() {
   );
 }
 
+// Page Dashboard simplifiée
+function DashboardPage() {
+  return (
+    <div className="min-h-screen bg-gray-100 p-6">
+      <div className="max-w-4xl mx-auto bg-white rounded-xl shadow-sm p-6">
+        <div className="flex justify-between items-center mb-6">
+          <h1 className="text-2xl font-bold">Tableau de bord</h1>
+          <Link href="/">
+            <a className="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg">
+              Retour à l'accueil
+            </a>
+          </Link>
+        </div>
+        
+        <div className="p-6 bg-blue-50 rounded-lg">
+          <p className="text-blue-600">
+            Cette page est une version simplifiée du tableau de bord. 
+            Elle nous permet de tester si le routage fonctionne correctement.
+          </p>
+        </div>
+        
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
+          <div className="bg-white border border-gray-200 rounded-lg p-4">
+            <h3 className="font-medium mb-2">Statistiques simplifiées</h3>
+            <p className="text-gray-600">
+              Cette section contiendra les statistiques de l'utilisateur.
+            </p>
+          </div>
+          
+          <div className="bg-white border border-gray-200 rounded-lg p-4">
+            <h3 className="font-medium mb-2">Suivi des cigarettes</h3>
+            <p className="text-gray-600">
+              Cette section contiendra le suivi des envies de fumer.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// Page Non trouvée
+function NotFoundPage() {
+  return (
+    <div className="min-h-screen bg-gray-100 flex flex-col items-center justify-center p-4">
+      <div className="bg-white p-8 rounded-xl shadow-md max-w-md w-full">
+        <h1 className="text-2xl font-bold text-center mb-6">Page non trouvée</h1>
+        <p className="text-gray-600 text-center mb-6">
+          La page que vous recherchez n'existe pas.
+        </p>
+        <Link href="/">
+          <a className="block w-full py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg text-center">
+            Retour à l'accueil
+          </a>
+        </Link>
+      </div>
+    </div>
+  );
+}
+
+// Routeur simplifié
+function AppRouter() {
+  return (
+    <Switch>
+      <Route path="/" component={HomePage} />
+      <Route path="/dashboard" component={DashboardPage} />
+      <Route component={NotFoundPage} />
+    </Switch>
+  );
+}
+
+// Composant principal de l'application
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <SimpleCounter />
+      <AppRouter />
       <Toaster />
     </QueryClientProvider>
   );
