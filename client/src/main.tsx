@@ -1,5 +1,6 @@
 import { createRoot } from "react-dom/client";
-import App from "./App";
+import SimpleApp from "./SimpleApp";
 import "./index.css";
 
-createRoot(document.getElementById("root")!).render(<App />);
+// Utiliser l'application simplifiée pour vérifier si le rendu fonctionne correctement
+createRoot(document.getElementById("root")!).render(<SimpleApp />);
