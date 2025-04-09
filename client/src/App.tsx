@@ -3,6 +3,7 @@ import { Route, Switch, Link } from "wouter";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { queryClient } from "./lib/queryClient";
 import { Toaster } from "@/components/ui/toaster";
+import SimpleCigaretteTracker from "@/components/dashboard/simple-cigarette-tracker";
 
 // Page d'accueil simplifiée
 function HomePage() {
@@ -70,11 +71,14 @@ function HomePage() {
   );
 }
 
-// Page Dashboard simplifiée
+// Page Dashboard améliorée
 function DashboardPage() {
+  // Nous utilisons un ID d'utilisateur fixe pour le moment (utilisateur par défaut)
+  const userId = 1;
+
   return (
     <div className="min-h-screen bg-gray-100 p-6">
-      <div className="max-w-4xl mx-auto bg-white rounded-xl shadow-sm p-6">
+      <div className="max-w-4xl mx-auto">
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-2xl font-bold">Tableau de bord</h1>
           <Link href="/" className="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg">
@@ -82,27 +86,15 @@ function DashboardPage() {
           </Link>
         </div>
         
-        <div className="p-6 bg-blue-50 rounded-lg">
-          <p className="text-blue-600">
-            Cette page est une version simplifiée du tableau de bord. 
-            Elle nous permet de tester si le routage fonctionne correctement.
-          </p>
-        </div>
-        
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
-          <div className="bg-white border border-gray-200 rounded-lg p-4">
-            <h3 className="font-medium mb-2">Statistiques simplifiées</h3>
-            <p className="text-gray-600">
-              Cette section contiendra les statistiques de l'utilisateur.
+        <div className="bg-white p-6 rounded-xl shadow-sm mb-6">
+          <div className="p-6 bg-blue-50 rounded-lg mb-6">
+            <p className="text-blue-600">
+              Bienvenue dans votre tableau de bord. Cette version simplifiée vous permet de suivre vos envies de cigarette.
             </p>
           </div>
           
-          <div className="bg-white border border-gray-200 rounded-lg p-4">
-            <h3 className="font-medium mb-2">Suivi des cigarettes</h3>
-            <p className="text-gray-600">
-              Cette section contiendra le suivi des envies de fumer.
-            </p>
-          </div>
+          {/* Composant SimpleCigaretteTracker */}
+          <SimpleCigaretteTracker userId={userId} />
         </div>
       </div>
     </div>
