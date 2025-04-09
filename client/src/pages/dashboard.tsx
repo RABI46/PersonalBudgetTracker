@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import Layout from "@/components/layout/layout";
 import StatCard from "@/components/dashboard/stat-card";
-import CigaretteTracker from "@/components/dashboard/cigarette-tracker";
+import SimpleCigaretteTracker from "@/components/dashboard/simple-cigarette-tracker";
 import SavingsGraph from "@/components/dashboard/savings-graph";
 import HealthBenefits from "@/components/dashboard/health-benefits";
 import DailyTip from "@/components/dashboard/daily-tip";
@@ -80,11 +80,7 @@ export default function Dashboard() {
       </div>
       
       {/* Cigarette Tracker */}
-      <CigaretteTracker 
-        userId={userId}
-        lastCraving={lastCraving}
-        longestStreak={longestStreak}
-      />
+      <SimpleCigaretteTracker userId={userId} />
       
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Savings Graph */}
