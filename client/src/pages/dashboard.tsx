@@ -15,12 +15,16 @@ export default function Dashboard() {
   const userId = 1;
   
   // Fetch user stats from API
-  const { data: userWithStats, isLoading } = useQuery({
+  const { data: userWithStats, isLoading, isError } = useQuery({
     queryKey: ['/api/users/' + userId + '/with-stats'],
   });
   
   // Fall back to demo data if API not available
-  const userData = userWithStats || getDefaultUserData();
+  const defaultData = getDefaultUserData();
+  const userData = userWithStats || defaultData;
+  
+  // Ensure we have stats data, fallback to default if necessary
+  const stats = (userData as any)?.stats || defaultData.stats;
   
   const {
     daysSinceSmoking,
@@ -29,7 +33,7 @@ export default function Dashboard() {
     healthRecoveryPercentage,
     lastCraving,
     longestStreak
-  } = userData.stats;
+  } = stats;
   
   return (
     <Layout 

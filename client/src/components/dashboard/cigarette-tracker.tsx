@@ -30,11 +30,11 @@ export default function CigaretteTracker({
   const craving = lastCraving || fetchedLastCraving;
   
   // Calculate time since last craving
-  const timeSinceLastCraving = craving ? getTimeSince(craving.createdAt) : "N/A";
+  const timeSinceLastCraving = craving && (craving as any).createdAt ? getTimeSince((craving as any).createdAt) : "N/A";
   
   // Calculate progress percentage - max is longest streak
-  const currentMinutes = craving 
-    ? Math.floor((Date.now() - new Date(craving.createdAt).getTime()) / (1000 * 60))
+  const currentMinutes = craving && (craving as any).createdAt
+    ? Math.floor((Date.now() - new Date((craving as any).createdAt).getTime()) / (1000 * 60))
     : 0;
   
   const progress = longestStreak > 0 
