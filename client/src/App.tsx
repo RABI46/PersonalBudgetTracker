@@ -1,6 +1,10 @@
 import { useState } from "react";
+import { QueryClientProvider } from "@tanstack/react-query";
+import { queryClient } from "./lib/queryClient";
+import { Toaster } from "@/components/ui/toaster";
 
-function App() {
+// Component simplifié pour validation
+function SimpleCounter() {
   const [count, setCount] = useState(0);
   const [error, setError] = useState<string | null>(null);
   
@@ -51,11 +55,29 @@ function App() {
           </button>
         </div>
         
-        <p className="text-gray-600 text-center">
+        <div className="mt-6 pt-4 border-t border-gray-200">
+          <button 
+            onClick={() => window.location.href = '/dashboard'}
+            className="w-full py-2 bg-green-500 hover:bg-green-600 text-white rounded-lg"
+          >
+            Essayer d'accéder au Dashboard
+          </button>
+        </div>
+        
+        <p className="text-gray-600 text-center mt-4">
           Version simplifiée pour tester les interactions de base.
         </p>
       </div>
     </div>
+  );
+}
+
+function App() {
+  return (
+    <QueryClientProvider client={queryClient}>
+      <SimpleCounter />
+      <Toaster />
+    </QueryClientProvider>
   );
 }
 
